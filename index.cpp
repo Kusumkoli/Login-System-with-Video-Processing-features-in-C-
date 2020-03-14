@@ -30,7 +30,8 @@ bool create_video(int i)
         int frame_width = vcap.get(CV_CAP_PROP_FRAME_WIDTH);
         int frame_height = vcap.get(CV_CAP_PROP_FRAME_HEIGHT);
         VideoWriter video(filename, CV_FOURCC('M', 'J', 'P', 'G'), 10,Size(frame_width, frame_height), true);
-
+	
+	//capturing 10 sec video from webcam
         time(&start);
 
         for (;;) {
@@ -39,7 +40,7 @@ bool create_video(int i)
             vcap >> frame;
             video.write(frame);
             imshow("Frame", frame);
-            char c = (char)waitKey(25);
+            char c = (char)waitKey(33);
             if (c == 27) break;
 
 
@@ -52,9 +53,47 @@ bool create_video(int i)
                 break;
             }
         }	
-	vcap.release();
+
 	video.release();
+
+	//extracting Red Channel from frames of captured videos
+	string filename1 = "red_channel.avi";
+	VideoWriter red_channel(filename1, CV_FOURCC('M', 'J', 'P', 'G'), 10,Size(frame_width, frame_height), true);
+
+	Mat frame;
+	vector<Mat> rgb;
+
+	vcap >> frame;
+
+	rgb.push_back( Mat(frame.rows, frame.cols, CV_8UC1));
+	rgb.push_back( Mat(frame.rows, frame.cols, CV_8UC1));
+	rgb.push_back( Mat(frame.rows, frame.cols, CV_8UC1));
+	rgb.push_back( Mat(frame.rows, frame.cols, CV_8UC1));
 	
+
+	namedWindow("original", 1);
+	namedWindow("red", 1);
+	//namedWindow("green", 1);
+	//namedWindow("blue", 1);
+
+	for(;;){
+
+		vcap >> frame;
+		split(frame, rgb);
+		red_channel.write(frame);
+                // not sure if this is the rigth order
+		imshow("red", rgb.at(2));
+		//imshow("green", rgb.at(1));
+		//imshow("blue", rgb.at(0));
+
+		if(waitKey(30) >= 0) break;
+	}
+	
+	vcap.release();
+	red_channel.release();
+	
+	
+	//Applying Gaussian Filter on frames of red_channel extracted from video
 	VideoCapture c("vid.avi");
 	
 	// if not success, exit program
@@ -89,17 +128,16 @@ bool create_video(int i)
 	Mat frame_blurred_with_5x5_kernel;
 	GaussianBlur(frame, frame_blurred_with_5x5_kernel, Size(5, 5), 0);
 	gau_video.write(frame);
-	cout<<"Gaussian Filter applied to captured video"<<endl;
 	
 	imshow(window_name_of_original_video, frame);
         imshow(window_name_of_video_blurred_with_5x5_kernel, frame_blurred_with_5x5_kernel);
 	}
-
+	
+	cout<<"Gaussian Filter applied to captured video"<<endl;
 	c.release();
 	gau_video.release();
 
-	
-
+	//
 	return true;	
 }
 
