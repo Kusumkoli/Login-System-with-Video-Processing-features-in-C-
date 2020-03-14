@@ -22,7 +22,7 @@ bool create_video(int i)
 	time_t start, end;
         VideoCapture vcap(0);
         if (!vcap.isOpened()) {
-            cout << "Error opening video stream or file" << endl;
+            cout << "Error opening Camera" << endl;
             return -1;
         }
 
@@ -34,63 +34,71 @@ bool create_video(int i)
 	//capturing 10 sec video from webcam
         time(&start);
 
-        for (;;) {
+        for (;;) 
+	{
 
-            Mat frame;
+            Mat frame;	
             vcap >> frame;
-            video.write(frame);
+            if (frame.empty())
+      		break;
+
             imshow("Frame", frame);
-            char c = (char)waitKey(33);
-            if (c == 27) break;
+	    video.write(frame);
+
+            char c = (char)waitKey(25);
+            if (c == 27) 
+		break;
 
 
             time(&end);
             double dif = difftime(end, start);
-            //printf("Elasped time is %.2lf seconds.", dif);
             if (dif==10)
             {
-                std::cout << "Video of "<< dif<<" sec recorded successfully" << std::endl;
+                cout << "Video of "<< dif<<" sec recorded successfully" <<endl;
                 break;
             }
-        }	
-
+        }
+	vcap.release();
 	video.release();
+	destroyAllWindows();
+	
 
 	//extracting Red Channel from frames of captured videos
+
+	VideoCapture cap("vid.avi");
+	frame_width = cap.get(CV_CAP_PROP_FRAME_WIDTH);
+        frame_height = cap.get(CV_CAP_PROP_FRAME_HEIGHT);
 	string filename1 = "red_channel.avi";
 	VideoWriter red_channel(filename1, CV_FOURCC('M', 'J', 'P', 'G'), 10,Size(frame_width, frame_height), true);
-
+	
 	Mat frame;
 	vector<Mat> rgb;
 
-	vcap >> frame;
-
+	cap >> frame;
 	rgb.push_back( Mat(frame.rows, frame.cols, CV_8UC1));
 	rgb.push_back( Mat(frame.rows, frame.cols, CV_8UC1));
 	rgb.push_back( Mat(frame.rows, frame.cols, CV_8UC1));
 	rgb.push_back( Mat(frame.rows, frame.cols, CV_8UC1));
-	
 
 	namedWindow("original", 1);
 	namedWindow("red", 1);
-	//namedWindow("green", 1);
-	//namedWindow("blue", 1);
+	namedWindow("green", 1);
+	namedWindow("blue", 1);
 
-	for(;;){
+	for(;;)
+	{
 
-		vcap >> frame;
+		cap >> frame;		
+                imshow("original", frame);
 		split(frame, rgb);
-		red_channel.write(frame);
-                // not sure if this is the rigth order
 		imshow("red", rgb.at(2));
-		//imshow("green", rgb.at(1));
-		//imshow("blue", rgb.at(0));
-
+		red_channel.write(rgb.at(2));
 		if(waitKey(30) >= 0) break;
 	}
 	
-	vcap.release();
+	cap.release();
 	red_channel.release();
+	destroyAllWindows();
 	
 	
 	//Applying Gaussian Filter on frames of red_channel extracted from video
@@ -117,12 +125,15 @@ bool create_video(int i)
 	namedWindow(window_name_of_original_video, WINDOW_NORMAL);
 	namedWindow(window_name_of_video_blurred_with_5x5_kernel, WINDOW_NORMAL);
 
-	while (true)
+	while(true)
 	{
 	Mat frame;
-	c >> frame;
-	if (frame.empty())
-		break;  
+	bool bSuccess = c.read(frame); // read a new frame from video 
+        if (bSuccess == false)
+        {
+            cout << "Found the end of the video" << endl;
+            break;
+        }
 
 	//Blur the frame with 5x5 Gaussian kernel
 	Mat frame_blurred_with_5x5_kernel;
@@ -136,8 +147,8 @@ bool create_video(int i)
 	cout<<"Gaussian Filter applied to captured video"<<endl;
 	c.release();
 	gau_video.release();
+	destroyAllWindows();
 
-	//
 	return true;	
 }
 
