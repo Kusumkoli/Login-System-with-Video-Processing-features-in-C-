@@ -26,7 +26,7 @@ bool create_video(int i)
             return -1;
         }
 
-	string filename = "/home/kusu/Programs/CppApplication/vid.avi";
+	string filename = "vid.avi";
         int frame_width = vcap.get(CV_CAP_PROP_FRAME_WIDTH);
         int frame_height = vcap.get(CV_CAP_PROP_FRAME_HEIGHT);
         VideoWriter video(filename, CV_FOURCC('M', 'J', 'P', 'G'), 10,Size(frame_width, frame_height), true);
@@ -39,7 +39,7 @@ bool create_video(int i)
             vcap >> frame;
             video.write(frame);
             imshow("Frame", frame);
-            char c = (char)waitKey(33);
+            char c = (char)waitKey(25);
             if (c == 27) break;
 
 
@@ -48,10 +48,58 @@ bool create_video(int i)
             //printf("Elasped time is %.2lf seconds.", dif);
             if (dif==10)
             {
-                std::cout << "DONE" << dif<< std::endl;
+                std::cout << "Video of "<< dif<<" sec recorded successfully" << std::endl;
                 break;
             }
-        }
+        }	
+	vcap.release();
+	video.release();
+	
+	VideoCapture c("vid.avi");
+	
+	// if not success, exit program
+	if (c.isOpened() == false)
+	{
+	cout << "Cannot open the video file" << endl;
+	//cin.get(); //wait for any key press
+	return -1;
+	}
+
+	frame_width = c.get(CV_CAP_PROP_FRAME_WIDTH);
+        frame_height = c.get(CV_CAP_PROP_FRAME_HEIGHT);	
+	
+	filename = "gaussian_filter_output.avi";
+	VideoWriter gau_video(filename, CV_FOURCC('M', 'J', 'P', 'G'), 10,Size(frame_width, frame_height), true);
+
+	String window_name_of_original_video = "Original Video";
+	String window_name_of_video_blurred_with_5x5_kernel = "Video Blurred with 5 x 5 Gaussian 	Kernel";
+
+	// Create a window with above names
+	namedWindow(window_name_of_original_video, WINDOW_NORMAL);
+	namedWindow(window_name_of_video_blurred_with_5x5_kernel, WINDOW_NORMAL);
+
+	while (true)
+	{
+	Mat frame;
+	c >> frame;
+	if (frame.empty())
+		break;  
+
+	//Blur the frame with 5x5 Gaussian kernel
+	Mat frame_blurred_with_5x5_kernel;
+	GaussianBlur(frame, frame_blurred_with_5x5_kernel, Size(5, 5), 0);
+	gau_video.write(frame);
+	cout<<"Gaussian Filter applied to captured video"<<endl;
+	
+	imshow(window_name_of_original_video, frame);
+        imshow(window_name_of_video_blurred_with_5x5_kernel, frame_blurred_with_5x5_kernel);
+	}
+
+	c.release();
+	gau_video.release();
+
+	
+
 	return true;	
 }
 
