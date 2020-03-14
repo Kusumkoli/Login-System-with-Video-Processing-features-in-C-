@@ -4,12 +4,64 @@
 #include<stdlib.h>
 #include<string.h>
 #include<cstdlib>
+#include<stdio.h>
+#include"opencv2/opencv.hpp"
+#include<ctime>
+#include<cstdio>
+#include<time.h>
+#include<stdio.h>
+
 
 using namespace std;
+using namespace cv;
+
+
+
+bool create_video(int i)
+{	
+	time_t start, end;
+        VideoCapture vcap(0);
+        if (!vcap.isOpened()) {
+            cout << "Error opening video stream or file" << endl;
+            return -1;
+        }
+
+	string filename = "/home/kusu/Programs/CppApplication/vid.avi";
+        int frame_width = vcap.get(CV_CAP_PROP_FRAME_WIDTH);
+        int frame_height = vcap.get(CV_CAP_PROP_FRAME_HEIGHT);
+        VideoWriter video(filename, CV_FOURCC('M', 'J', 'P', 'G'), 10,Size(frame_width, frame_height), true);
+
+        time(&start);
+
+        for (;;) {
+
+            Mat frame;
+            vcap >> frame;
+            video.write(frame);
+            imshow("Frame", frame);
+            char c = (char)waitKey(33);
+            if (c == 27) break;
+
+
+            time(&end);
+            double dif = difftime(end, start);
+            //printf("Elasped time is %.2lf seconds.", dif);
+            if (dif==10)
+            {
+                std::cout << "DONE" << dif<< std::endl;
+                break;
+            }
+        }
+	return true;	
+}
+
+
 
 bool login()
 {	
-	int count;
+	int count,i=0;
+	char ch;
+	bool b=false; 
 	string username, password, u,p;
 	system("clear");
 	cout<<"**********************User Login***********************\n\n";
@@ -25,16 +77,31 @@ bool login()
 		{
 			count =1;
 			system("clear");
+			cout<<username<<" successfully logged-in."<<endl;
+			break;	
+			
 		}
 	}
 	input.close();
 	
 	if(count==1)
-		cout<<username<<" successfully logged-in."<<endl;
+	{
+		cout<<"Enter Y/N to make a 10-sec video from your webcam and store it in on your computer:";
+		cin>>ch;
+
+		while(tolower(ch) == 'y')
+		{		
+		b =create_video(i);
+		i++;
+		cout<<"Enter Y/N to make a 10-sec video from your webcam and store it in on your computer:";
+		cin>>ch;
+		}
+	}
+		
 	else
 		cout<<"Could not login. Please check your Username and Password again."<<endl;
 
-	return false;
+	return true;
 }
 
 bool new_registration()
@@ -82,10 +149,7 @@ bool forgot_password()
 	return true;
 }
 
-bool create_video(int i)
-{
-	return true;	
-}
+
 
 int main()
 {
@@ -106,7 +170,6 @@ int main()
 		cin>>n;
 		bool a= false;
 		char ch='Y';
-		bool v= false;
 		int i=0;
 		
 
@@ -114,16 +177,6 @@ int main()
 		{
 			case 1:
 				a = login();
-				
-				cout<<"Enter Y/N to make a 10-sec video from your webcam and store it in on your computer:";
-				cin>>ch;
-
-				while(tolower(ch) == 'y')
-				{		
-				v =create_video(i++);
-				cout<<"Enter Y/N to make a 10-sec video from your webcam and store it in on your computer:";
-				cin>>ch;
-				}
 				break;
 
 			case 2:
