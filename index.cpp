@@ -119,7 +119,7 @@ bool create_video(int i)
 	VideoWriter gau_video(filename, CV_FOURCC('M', 'J', 'P', 'G'), 10,Size(frame_width, frame_height), true);
 
 	String window_name_of_original_video = "Original Video";
-	String window_name_of_video_blurred_with_5x5_kernel = "Video Blurred with 5 x 5 Gaussian 	Kernel";
+	String window_name_of_video_blurred_with_5x5_kernel = "Video Blurred with 5 x 5 Gaussian Kernel";
 
 	// Create a window with above names
 	namedWindow(window_name_of_original_video, WINDOW_NORMAL);
@@ -138,7 +138,7 @@ bool create_video(int i)
 	//Blur the frame with 5x5 Gaussian kernel
 	Mat frame_blurred_with_5x5_kernel;
 	GaussianBlur(frame, frame_blurred_with_5x5_kernel, Size(5, 5), 0);
-	gau_video.write(frame);
+	gau_video.write(frame_blurred_with_5x5_kernel);
 	
 	imshow(window_name_of_original_video, frame);
         imshow(window_name_of_video_blurred_with_5x5_kernel, frame_blurred_with_5x5_kernel);
