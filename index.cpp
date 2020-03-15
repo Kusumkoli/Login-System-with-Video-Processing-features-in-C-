@@ -26,10 +26,12 @@ bool create_video(int i)
             return -1;
         }
 
-	string filename = "vid.avi";
+	std::ostringstream name_stream;
+	name_stream << "vid" << i << ".avi";
+	std::string filename = name_stream.str();
         int frame_width = vcap.get(CV_CAP_PROP_FRAME_WIDTH);
         int frame_height = vcap.get(CV_CAP_PROP_FRAME_HEIGHT);
-        VideoWriter video(filename, CV_FOURCC('M', 'J', 'P', 'G'), 10,Size(frame_width, frame_height), true);
+        VideoWriter video(filename, CV_FOURCC('M', 'J', 'P', 'G'), 15,Size(frame_width, frame_height), true);
 	
 	//capturing 10 sec video from webcam
         time(&start);
@@ -43,7 +45,6 @@ bool create_video(int i)
       		break;
 
             imshow("Frame", frame);
-	    video.write(frame);
 
             char c = (char)waitKey(25);
             if (c == 27) 
@@ -57,98 +58,27 @@ bool create_video(int i)
                 cout << "Video of "<< dif<<" sec recorded successfully" <<endl;
                 break;
             }
+	
+	    for(int i=0;i<frame.rows;i++)
+			for(int j=0;j<frame.cols;j++)
+			{
+				frame.at<Vec3b>(i,j)[0] = 0;
+				frame.at<Vec3b>(i,j)[1] = 0;	
+			}
+	    Mat frame_blurred_with_5x5_kernel;
+	    GaussianBlur(frame, frame_blurred_with_5x5_kernel, Size(5, 5), 0);
+	    
+            video.write(frame_blurred_with_5x5_kernel);
+	    
         }
+	cout<<"Red Channel extracted from captured video."<<endl;
+	cout<<"Gaussian Filter applied to captured video."<<endl;
+	cout<<"Video no. "<<i<<" successfully stored on disk.\n\n";
+	cout<<"**********************************************************\n\n";	
 	vcap.release();
 	video.release();
 	destroyAllWindows();
 	
-
-	//extracting Red Channel from frames of captured videos
-
-	VideoCapture cap("vid.avi");
-	frame_width = cap.get(CV_CAP_PROP_FRAME_WIDTH);
-        frame_height = cap.get(CV_CAP_PROP_FRAME_HEIGHT);
-	string filename1 = "red_channel.avi";
-	VideoWriter red_channel(filename1, CV_FOURCC('M', 'J', 'P', 'G'), 10,Size(frame_width, frame_height), true);
-	
-	Mat frame;
-	vector<Mat> rgb;
-
-	cap >> frame;
-	rgb.push_back( Mat(frame.rows, frame.cols, CV_8UC1));
-	rgb.push_back( Mat(frame.rows, frame.cols, CV_8UC1));
-	rgb.push_back( Mat(frame.rows, frame.cols, CV_8UC1));
-	rgb.push_back( Mat(frame.rows, frame.cols, CV_8UC1));
-
-	namedWindow("original", 1);
-	namedWindow("red", 1);
-	namedWindow("green", 1);
-	namedWindow("blue", 1);
-
-	for(;;)
-	{
-
-		cap >> frame;		
-                imshow("original", frame);
-		split(frame, rgb);
-		imshow("red", rgb.at(2));
-		red_channel.write(rgb.at(2));
-		if(waitKey(30) >= 0) break;
-	}
-	
-	cap.release();
-	red_channel.release();
-	destroyAllWindows();
-	
-	
-	//Applying Gaussian Filter on frames of red_channel extracted from video
-	VideoCapture c("vid.avi");
-	
-	// if not success, exit program
-	if (c.isOpened() == false)
-	{
-	cout << "Cannot open the video file" << endl;
-	//cin.get(); //wait for any key press
-	return -1;
-	}
-
-	frame_width = c.get(CV_CAP_PROP_FRAME_WIDTH);
-        frame_height = c.get(CV_CAP_PROP_FRAME_HEIGHT);	
-	
-	filename = "gaussian_filter_output.avi";
-	VideoWriter gau_video(filename, CV_FOURCC('M', 'J', 'P', 'G'), 10,Size(frame_width, frame_height), true);
-
-	String window_name_of_original_video = "Original Video";
-	String window_name_of_video_blurred_with_5x5_kernel = "Video Blurred with 5 x 5 Gaussian Kernel";
-
-	// Create a window with above names
-	namedWindow(window_name_of_original_video, WINDOW_NORMAL);
-	namedWindow(window_name_of_video_blurred_with_5x5_kernel, WINDOW_NORMAL);
-
-	while(true)
-	{
-	Mat frame;
-	bool bSuccess = c.read(frame); // read a new frame from video 
-        if (bSuccess == false)
-        {
-            cout << "Found the end of the video" << endl;
-            break;
-        }
-
-	//Blur the frame with 5x5 Gaussian kernel
-	Mat frame_blurred_with_5x5_kernel;
-	GaussianBlur(frame, frame_blurred_with_5x5_kernel, Size(5, 5), 0);
-	gau_video.write(frame_blurred_with_5x5_kernel);
-	
-	imshow(window_name_of_original_video, frame);
-        imshow(window_name_of_video_blurred_with_5x5_kernel, frame_blurred_with_5x5_kernel);
-	}
-	
-	cout<<"Gaussian Filter applied to captured video"<<endl;
-	c.release();
-	gau_video.release();
-	destroyAllWindows();
-
 	return true;	
 }
 
@@ -156,7 +86,7 @@ bool create_video(int i)
 
 bool login()
 {	
-	int count,i=0;
+	int count,i=1;
 	char ch;
 	bool b=false; 
 	string username, password, u,p;
@@ -193,6 +123,7 @@ bool login()
 		cout<<"Enter Y/N to make a 10-sec video from your webcam and store it in on your computer:";
 		cin>>ch;
 		}
+		cout<<i-1<<" Videos captured successfully and stored on your disk."<<endl;
 	}
 		
 	else
