@@ -90,7 +90,6 @@ bool login()
 	char ch;
 	bool b=false; 
 	string username, password, u,p;
-	system("clear");
 	cout<<"**********************User Login***********************\n\n";
 	cout<<"Enter Username: ";
 	cin>>username;
@@ -103,7 +102,6 @@ bool login()
 		if(u==username && p==password)
 		{
 			count =1;
-			system("clear");
 			cout<<username<<" successfully logged-in."<<endl;
 			break;	
 			
@@ -135,7 +133,6 @@ bool login()
 bool new_registration()
 {
 	string username, password;
-	system("clear");
 	cout<<"*******************New Registration********************\n\n";
 	cout<<"Enter Username(without space): ";
 	cin>>username;
@@ -153,7 +150,6 @@ bool forgot_password()
 {
 	int count=0;
 	string search_user, u,p;
-	system("clear");
 	cout<<"*******************Password Retrieval********************\n\n";
 	cout<<"Enter username:";
 	cin>>search_user;
