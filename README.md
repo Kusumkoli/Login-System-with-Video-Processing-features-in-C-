@@ -1,4 +1,4 @@
-# Login-System-with-Video-Processing-features-in-C++
+# Video-Processing-in-C++-with-Login-System
 The C++ Application consists of the following features: 
 
 1. Login-Logout Feature 
