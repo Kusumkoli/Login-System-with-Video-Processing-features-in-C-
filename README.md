@@ -1,4 +1,4 @@
-# Video-Processing-in-C++-with-Login-System
+# Video-Processing-in-C++-OpenCV-with-Login-System
 The C++ Application consists of the following features: 
 
 1. Login-Logout Feature 
